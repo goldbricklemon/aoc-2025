@@ -7,7 +7,7 @@ Just to keep track of the status. I'm not rushing for as-fast-as-possible soluti
 
 | Day | Solved | Time Star 1 | Time Star 2 | Total Time |
 |-----|--------|-------------|-------------|------------|
-| 01  |        |             |             |            |
+| 01  |⭐     | 00:05:20     |             |            |
 | 02  |        |             |             |            |
 | 03  |        |             |             |            |
 | 04  |        |             |             |            |
