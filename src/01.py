@@ -25,7 +25,7 @@ L82
 """
 
 TEST_RESULT_PART_ONE = 3
-TEST_RESULT_PART_TWO = 0
+TEST_RESULT_PART_TWO = 6
 
 
 class Direction(Enum):
@@ -41,14 +41,27 @@ class Dial:
 
     def __init__(self, value:int, max_value:int):
         self.value = value
-        self.max_value = max_value + 1
+        self.max_value = max_value
+        self.ended_on_zero = 0
+        self.passed_zero = 0
 
     def turn(self, direction:Direction, amount:int):
+        full_rotations = amount // (self.max_value + 1)
         match direction:
             case Direction.LEFT:
-                self.value = (self.value - amount) % self.max_value
+                new_value = (self.value - amount) % (self.max_value + 1)
+                if self.value != 0 and new_value > self.value:
+                    self.passed_zero += 1
             case Direction.RIGHT:
-                self.value = (self.value + amount) % self.max_value
+                new_value = (self.value + amount) % (self.max_value + 1)
+                if new_value != 0 and new_value < self.value:
+                    self.passed_zero += 1
+
+        self.value = new_value
+        self.passed_zero += full_rotations
+
+        if self.value == 0:
+            self.ended_on_zero += 1
         
 
 def solve_part_one(lines: list[str]) -> int:
@@ -57,12 +70,16 @@ def solve_part_one(lines: list[str]) -> int:
     num_zeros = 0
     for direction, amount in instructions:
         dial.turn(direction, amount)
-        num_zeros += int(dial.value == 0)
-    return num_zeros
+    return dial.ended_on_zero
 
 
 def solve_part_two(lines: list[str]) -> int:
-    return 0
+    instructions = parse_instructions(lines)
+    dial = Dial(value=50, max_value=99)
+    num_zeros = 0
+    for direction, amount in instructions:
+        dial.turn(direction, amount)
+    return dial.passed_zero + dial.ended_on_zero
 
 
 if __name__ == '__main__':
