@@ -14,7 +14,7 @@ TEST_INPUT = \
 """
 
 TEST_RESULT_PART_ONE = 1227775554
-TEST_RESULT_PART_TWO = 0
+TEST_RESULT_PART_TWO = 4174379265
 
 def read_ranges(line: str) -> tuple[int, int]:
     parts = line.split(",")
@@ -23,20 +23,33 @@ def read_ranges(line: str) -> tuple[int, int]:
 
 def solve_part_one(lines: list[str]) -> int:
     ranges = read_ranges(lines[0])
-    invalid_ids = []
+    invalid_ids_sum = 0
     for start, end in ranges:
         for num in range(start, end+1):
             num_str = str(num)
             digits = len(num_str)
             if digits % 2 == 0:
                 if num_str[:digits//2] == num_str[digits//2:]:
-                    invalid_ids.append(num)
+                    invalid_ids_sum += num
             
-    return sum(invalid_ids)
+    return invalid_ids_sum
 
 
 def solve_part_two(lines: list[str]) -> int:
-    return 0
+    ranges = read_ranges(lines[0])
+    invalid_ids_sum = 0
+    for start, end in ranges:
+        for num in range(start, end+1):
+            num_str = str(num)
+            digits = len(num_str)
+            for prefix_digits in range(1, digits//2 + 1):
+                prefix_reps = digits // prefix_digits
+                if digits % prefix_digits == 0:
+                    if num_str[:prefix_digits] * prefix_reps == num_str:
+                        invalid_ids_sum += num
+                        # Don't double count e.g. 2222
+                        break
+    return invalid_ids_sum
 
 
 if __name__ == '__main__':
