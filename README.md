@@ -7,8 +7,8 @@ Just to keep track of the status. I'm not rushing for as-fast-as-possible soluti
 
 | Day | Solved | Time Star 1 | Time Star 2 | Total Time |
 |-----|--------|-------------|-------------|------------|
-| 01  |⭐⭐   | 00:05:20     | 00:14:42    | 00:20:02   |
-| 02  |        |             |             |            |
+| 01  |⭐⭐   | 00:05:20    | 00:14:42    | 00:20:02   |
+| 02  |⭐     | 00:09:14     |             |            |
 | 03  |        |             |             |            |
 | 04  |        |             |             |            |
 | 05  |        |             |             |            |
