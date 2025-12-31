@@ -17,7 +17,7 @@ TEST_INPUT = \
 """
 
 TEST_RESULT_PART_ONE = 357
-TEST_RESULT_PART_TWO = 0
+TEST_RESULT_PART_TWO = 3121910778619
 
 def read_banks(lines: list[str]) -> np.ndarray:
     rows = len(lines)
@@ -30,18 +30,32 @@ def read_banks(lines: list[str]) -> np.ndarray:
 
 def solve_part_one(lines: list[str]) -> int:
     banks = read_banks(lines)
-    jolts = []
+    jolts_sum = 0
     for bank in banks:
         i1 = np.argmax(bank[:-1])
         d1 = bank[i1]
         d2 = np.max(bank[i1+1:])
-        jolts.append(d1*10 + d2)
+        jolts_sum += d1*10 + d2
 
-    return sum(jolts)
+    return jolts_sum
 
 
 def solve_part_two(lines: list[str]) -> int:
-    return 0
+    banks = read_banks(lines)
+    jolts_sum = 0
+    for bank in banks:
+        jolts = 0
+        # Search for each digit beyond the location of the previous digit
+        max_i = -1
+        for d_i in range(12):
+            # Only search for the max digit such that enough digits remain to obtain a 12-digit jolt number
+            end_index = -(11 - d_i) if d_i < 11 else bank.shape[0]
+            max_i = np.argmax(bank[max_i + 1 : end_index]) + max_i + 1
+            digit = bank[max_i]
+            jolts += digit * (10 ** (11 - d_i))
+        jolts_sum += jolts
+
+    return sum(jolts)
 
 
 if __name__ == '__main__':
