@@ -10,7 +10,7 @@ Just to keep track of the status. I'm not rushing for as-fast-as-possible soluti
 | 01  |⭐⭐   | 00:05:20    | 00:14:42    | 00:20:02   |
 | 02  |⭐⭐   | 00:09:14    | 00:07:46    | 00:17:00   |
 | 03  |⭐⭐   | 00:10:04    | 00:12:42    | 00:22:46   |
-| 04  |⭐      | 00:15:23    | hh:mm:ss    | hh:mm:ss   |
+| 04  |⭐⭐   | 00:15:23    | 00:05:57    | 21:21:23   |
 | 05  |        | hh:mm:ss    | hh:mm:ss    | hh:mm:ss   |
 | 06  |        | hh:mm:ss    | hh:mm:ss    | hh:mm:ss   |
 | 07  |        | hh:mm:ss    | hh:mm:ss    | hh:mm:ss   |
