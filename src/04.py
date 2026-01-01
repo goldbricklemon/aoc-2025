@@ -24,7 +24,7 @@ TEST_INPUT = \
 """
 
 TEST_RESULT_PART_ONE = 13
-TEST_RESULT_PART_TWO = 0
+TEST_RESULT_PART_TWO = 43
 
 def read_map(lines: list[str]) -> np.ndarray:
     rows, cols = len(lines), len(lines[0])
@@ -36,16 +36,32 @@ def read_map(lines: list[str]) -> np.ndarray:
 
 def solve_part_one(lines: list[str]) -> int:
     grid = read_map(lines)
+    # Check 3x3 neighbourhood
     filter = np.ones((3,3), dtype=int)
     filter[1, 1] = 0
-    accesible_locs = scipy.signal.convolve2d(grid, filter, mode="same", boundary="fill", fillvalue=0.)
-    accesible_locs = np.where(accesible_locs < 4, 1, 0)
-    accesible_rolls = np.logical_and(grid, accesible_locs)
-    return np.sum(accesible_rolls)
+    # Use implicit zero-padding
+    accessible_locs = scipy.signal.convolve2d(grid, filter, mode="same", boundary="fill", fillvalue=0.)
+    accessible_locs = np.where(accessible_locs < 4, 1, 0)
+    accessible_rolls = np.logical_and(grid, accessible_locs)
+    return np.sum(accessible_rolls)
 
 
 def solve_part_two(lines: list[str]) -> int:
-    return 0
+    grid = read_map(lines)
+    # Check 3x3 neighbourhood
+    filter = np.ones((3,3), dtype=int)
+    filter[1, 1] = 0
+    num_removed = 0
+    num_accessible = -1
+    while num_accessible != 0:
+        accessible_locs = scipy.signal.convolve2d(grid, filter, mode="same", boundary="fill", fillvalue=0.)
+        accessible_locs = np.where(accessible_locs < 4, 1, 0)
+        accessible_rolls = np.logical_and(grid, accessible_locs)
+        num_accessible = np.sum(accessible_rolls)
+        num_removed += num_accessible
+        # Remove accessible rolls from grid
+        grid &= (~accessible_rolls)
+    return num_removed
 
 
 if __name__ == '__main__':
