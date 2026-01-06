@@ -30,7 +30,7 @@ TEST_INPUT = \
 """
 
 TEST_RESULT_PART_ONE = 21
-TEST_RESULT_PART_TWO = 0
+TEST_RESULT_PART_TWO = 40
 
 
 S = 'S'
@@ -45,8 +45,9 @@ def read_grid(lines: list[str]) -> np.ndarray:
 
 def solve_part_one(lines: list[str]) -> int:
     grid = read_grid(lines)
-    rows = grid.shape[0]
+    rows, cols = grid.shape
     start_x: int = int(np.where(grid[0] == S)[0][0])
+    # deque can have fixed size here
     beams = deque([(1, start_x)], maxlen=grid.size)
     num_splits = 0
     while len(beams) > 0:
@@ -61,15 +62,33 @@ def solve_part_one(lines: list[str]) -> int:
             num_splits += 1
             for split_x in (beam_x - 1, beam_x  + 1):
                 # Generate new beams if grid is free
-                if grid[beam_y, split_x] == FREE:
+                if 0 <= split_x < cols and grid[beam_y, split_x] == FREE:
                     grid[beam_y, split_x] = BEAM
                     beams.appendleft((beam_y, split_x))
     return num_splits
 
 
 def solve_part_two(lines: list[str]) -> int:
-    return 0
+    grid = read_grid(lines)
+    rows, cols = grid.shape
+    start_x: int = int(np.where(grid[0] == S)[0][0])
 
+    # Build iterative solutions bottom-up
+    timeline_table = np.zeros_like(grid, dtype=int)
+    timeline_table[-1, :] = 1
+    # Calculate timelines for every possible beam location, starting at the bottom
+    # Last line is already solved with 1, first line is irrelevant
+    for y in range(rows - 2, 0, -1):
+        for x in range(0, cols):
+            if grid[y, x] == FREE:
+                if grid[y+1, x] == FREE:
+                    timeline_table[y, x] = timeline_table[y+1, x]
+                elif grid[y+1, x] == SPLIT:
+                    timeline_table[y, x] = timeline_table[y+1, x-1] + timeline_table[y+1, x+1]
+
+    total_timelines = timeline_table[1, start_x]
+    return total_timelines
+                        
 
 if __name__ == '__main__':
     test_input= read_input.read_test_input(TEST_INPUT)
