@@ -15,7 +15,7 @@ Just to keep track of the status. I'm not rushing for as-fast-as-possible soluti
 | 06  |⭐⭐   | 00:18:35    | 00:22:53    | 00:41:28   |
 | 07  |⭐⭐   | 00:24:04    | 00:39:32    | 01:03:36   |
 | 08  |⭐⭐   | 00:55:33    | 00:04:23    | 00:59:56   |
-| 09  |        | hh:mm:ss    | hh:mm:ss    | hh:mm:ss   |
+| 09  |⭐     | 00:24:04    | hh:mm:ss    | hh:mm:ss   |
 | 10  |        | hh:mm:ss    | hh:mm:ss    | hh:mm:ss   |
 | 11  |        | hh:mm:ss    | hh:mm:ss    | hh:mm:ss   |
 | 12  |        | hh:mm:ss    | hh:mm:ss    | hh:mm:ss   |
