@@ -44,27 +44,33 @@ def solve_part_one(lines: list[str]) -> int:
     return np.max(rect_areas)
 
 
-def point_in_polygon(p: tuple[int, int], poly_points:np.ndarray) -> bool:
+def point_in_polygon(p: tuple[int, int], poly_points:np.ndarray) -> tuple[bool, int]:
     # Ray-casting algorithm using the even-odd rule
     # Cast a horizontal ray from p to x-infinity and check number of poly edge intersections
     # Uses image coordinate system (y axis down)!
     px, py = p
     n_points = poly_points.shape[0]
     in_poly = False
+    on_poly = False
+    n_crosses = 0
     for i in range(n_points):
         ax, ay = poly_points[i-1]
         bx, by = poly_points[i]
 
         # Check if p is poly grid point
         if p == (ax, ay) or p == (bx, by):
-            return True
+            on_poly = True
 
         # Check if poly edge is horizontal and contains p
-        if (ay == by == py) and (ax <= px <= bx or bx <= px <= ax):
-            return True
+        elif (ay == by == py) and (ax <= px <= bx or bx <= px <= ax):
+            on_poly = True
+            
+        # Check if ray overlaps with horizontal edge
+        elif (ay == by == py) and (px <= ax and px <= bx):
+            pass # do nothing
         
         # Check if ray can hit AB at all
-        if ay <= py <= by or by <= py <= ay:
+        elif ay <= py <= by or by <= py <= ay:
             # Special case: ray hits the lower of both points
             # Ignore to avoid double-counting of this hit
             if ( py == ay and by <= ay ) or ( py == by and ay <= by ):
@@ -73,13 +79,15 @@ def point_in_polygon(p: tuple[int, int], poly_points:np.ndarray) -> bool:
             # Use cross-product to determine the side of AB on which p lies
             cross = (ax - px) * (by - py) - (ay - py) * (bx - px)
             if cross == 0:
-                # Ray intersects and is parallel to AB
-                return True
+                # Ray intersects and is parallel to AB -> P lies on AB
+                on_poly = True
             # In image coordinates, when a above b, then p must be right of AB to intersect
             # In this case, cross < 0
-            if (ay < by) == (cross < 0):
+            elif (ay < by) == (cross < 0):
+                n_crosses += 1
                 in_poly = not in_poly
-    return in_poly
+
+    return in_poly or on_poly, n_crosses
 
 
 
@@ -96,7 +104,7 @@ def solve_part_two(lines: list[str]) -> int:
     # coord-wise differences within pairs
     # (N, N, 2)
     pair_diff = pairs - np.transpose(pairs, axes=(1, 0, 2))
-    # absolute differences (in x and y). +1 due to the way area is calulated in this puzzle
+    # absolute differences (in x and y). +1 due to the way area is calculated in this puzzle
     pair_diff = np.abs(pair_diff) + 1
     # rect areas for each pair: (|dx| + 1) * (|dy| + 1)
     rect_areas = pair_diff[:, :, 0] * pair_diff[:, :, 1]
@@ -107,7 +115,7 @@ def solve_part_two(lines: list[str]) -> int:
             if rect_areas[i,j] > max_area:
                 pi, pj = points[[i, j]]
                 edge2 = (pi[0], pj[1])
-                edge3 = (pj[0], pi[1])
+                edge3 = (pj[0], pi[1])                
                 if point_in_polygon(edge2, points) and point_in_polygon(edge3, points):
                     max_area = rect_areas[i,j]
 
