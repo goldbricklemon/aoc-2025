@@ -19,7 +19,7 @@ TEST_INPUT = \
 """
 
 TEST_RESULT_PART_ONE = 7
-TEST_RESULT_PART_TWO = 0
+TEST_RESULT_PART_TWO = 33
 
 @dataclass
 class TrialSequence:
@@ -30,14 +30,13 @@ class TrialSequence:
         return len(self.button_sequence)
 
 
-def read_machines(lines: list[str]) -> tuple[np.ndarray, list[list[tuple]]]:
+def read_machines(lines: list[str]) -> tuple[np.ndarray, list[list[tuple]], list[int]]:
     states = []
     button_sequences = []
     # No regex today, just not feeling it
     for line in lines:
         i = line.index("]")
-        state = line[1:i]
-        state = list(map(lambda c: True if c=="#" else False, state))
+        state = list(map(lambda c: True if c=="#" else False, line[1:i]))
         state = np.array(state)
         states.append(state)
         line = line[i+1:]
@@ -47,8 +46,9 @@ def read_machines(lines: list[str]) -> tuple[np.ndarray, list[list[tuple]]]:
             buttons.append([int(c) for c in line[i+1:j].split(",")])
             line = line[j+1:]
         button_sequences.append(buttons)
-    # TODO: extract joults as well
-    return states, button_sequences
+        # TODO: extract joults as well
+        joults = [int(c) for c in line[line.index("{")+1: line.index("}")].split(",")]
+    return states, button_sequences, joults
 
 
 def solve_machine_part_one(target_state: np.ndarray, buttons: list[tuple[int]]) -> int:
@@ -105,7 +105,7 @@ def solve_machine_part_one(target_state: np.ndarray, buttons: list[tuple[int]]) 
 
 
 def solve_part_one(lines: list[str]) -> int:
-    states, button_sequences = read_machines(lines)
+    states, button_sequences, _ = read_machines(lines)
     results = []
     for state, buttons in zip(states, button_sequences):
         n = solve_machine_part_one(state, buttons)
@@ -115,7 +115,13 @@ def solve_part_one(lines: list[str]) -> int:
 
 
 def solve_part_two(lines: list[str]) -> int:
-    return 0
+    states, button_sequences, _ = read_machines(lines)
+    results = []
+    for state, buttons in zip(states, button_sequences):
+        n = solve_machine_part_one(state, buttons)
+        results.append(n)
+    
+    return sum(results)
 
 
 if __name__ == '__main__':
