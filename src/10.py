@@ -110,6 +110,96 @@ def solve_machine_part_one(target_state: np.ndarray, buttons: list[tuple[int]]) 
     return min_n_presses
 
 
+@dataclass
+class SolverState:
+    counter_state: np.ndarray
+    remaining_buttons: list[tuple[int]]
+
+    def _button_affects_counter(self, button: tuple[int], counter_index:int) -> bool:
+        return counter_index in button
+
+    @property
+    def sorted_buttons(self) -> list[tuple[int]]:
+        return sorted(self.remaining_buttons, key=lambda x: len(x), reverse=True)
+
+    def solve(self) -> tuple[bool, int]:
+        n = self.counter_state.shape[0]
+        # All counters that are not zero yet
+        remaining_counter_indices = np.where(self.counter_state > 0)[0]
+
+        # Only keep buttons that can actually be pressed at least once
+        self.remaining_buttons = [button for button in self.remaining_buttons if all([c_i in remaining_counter_indices for c_i in button])]
+
+        # Base case 0: All solved
+        if remaining_counter_indices.shape[0] == 0:
+            return True, 0
+
+        # Base case 2: Is there a button for all remaining counters? If no, return False, 0
+        full_counter_coverage = all([any([self._button_affects_counter(button, c_i) for button in self.remaining_buttons]) 
+                                     for c_i in remaining_counter_indices])
+        if not full_counter_coverage:
+            return False, 0
+        
+
+        # Base case 3: Is there only one button left? Check if solvable, record presses if so
+        if len(self.remaining_buttons) == 1:
+            # Pick the non-zero counter
+            c_i = remaining_counter_indices[0]
+            counter_value = self.counter_state[c_i]
+            button = self.remaining_buttons[0]
+            button_mask = button_to_button_mask(button, n=n)
+            # Unsolvable by default
+            solvable, n_presses = False, 0
+            if button_mask[c_i]:
+                next_state = self.counter_state - (counter_value * button_mask.astype(int))
+                if all(next_state == 0):
+                    # Solved
+                    solvable, n_presses = True, int(counter_value)
+
+            return solvable, n_presses
+        
+
+        # Recursive case
+        # Not solved yet, still multiple buttons available
+        # Pick button candidate, starting with the most valuables first (affecting the most counters)
+        sorted_button_candidates = self.sorted_buttons
+        solved = False
+        best_n_presses = -1
+        for b_i, candidate_button in enumerate(sorted_button_candidates):
+            # Convert to ones mask
+            ones_mask = button_to_button_mask(candidate_button, n=n).astype(int)
+            # How often can we press this button given the remaining state?
+            n_presses = int(min([self.counter_state[i] for i in candidate_button]))
+            # New trial state: press the buttons that often and try to solve recursively
+            next_state = self.counter_state - (n_presses * ones_mask)
+            next_remaining_buttons = [button for i, button in enumerate(sorted_button_candidates) if i != b_i]
+            next_solver_state = SolverState(next_state, next_remaining_buttons)
+            recursive_solved, recursive_n_presses = next_solver_state.solve()
+            if recursive_solved:
+                solved = True
+                n_presses_candidate = recursive_n_presses + n_presses
+                if best_n_presses == -1 or n_presses_candidate < best_n_presses:
+                    best_n_presses = n_presses_candidate
+            
+        if not solved:
+            best_n_presses = 0
+        return solved, best_n_presses
+
+
+def solve_machine_part_two(target_state: np.ndarray, buttons: list[tuple[int]]) -> int:
+    # Create initial solver state, then solve recursively
+    # We use the target_state as the initial state, and try to reach the zero-vec
+    solver_state = SolverState(target_state, buttons)
+    solved, n_presses = solver_state.solve()
+    if not solved:
+        print(target_state)
+        print(buttons)
+        raise RecursionError("Recursive solver did not find solution")
+
+    return n_presses
+
+
+
 def solve_part_one(lines: list[str]) -> int:
     states, button_sequences, _ = read_machines(lines)
     results = []
