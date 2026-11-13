@@ -28,11 +28,18 @@ class TrialSequence:
 
     def __len__(self):
         return len(self.button_sequence)
+    
+def button_to_button_mask(button: tuple[int], n: int) -> np.ndarray:
+    mask = np.zeros((n,), dtype=bool)
+    for i in button:
+        mask[i] = True
+    return mask
 
 
-def read_machines(lines: list[str]) -> tuple[np.ndarray, list[list[tuple]], list[int]]:
+def read_machines(lines: list[str]) -> tuple[np.ndarray, list[list[tuple]], list[np.ndarray]]:
     states = []
     button_sequences = []
+    joults_states = []
     # No regex today, just not feeling it
     for line in lines:
         i = line.index("]")
@@ -47,17 +54,16 @@ def read_machines(lines: list[str]) -> tuple[np.ndarray, list[list[tuple]], list
             line = line[j+1:]
         button_sequences.append(buttons)
         # TODO: extract joults as well
-        joults = [int(c) for c in line[line.index("{")+1: line.index("}")].split(",")]
-    return states, button_sequences, joults
+        joults = np.array([int(c) for c in line[line.index("{")+1: line.index("}")].split(",")])
+        joults_states.append(joults)
+    return states, button_sequences, joults_states
 
 
 def solve_machine_part_one(target_state: np.ndarray, buttons: list[tuple[int]]) -> int:
     # Generate bit-masks from buttons
     button_masks = []
     for button in buttons:
-        mask = np.zeros_like(target_state)
-        for i in button:
-            mask[i] = True
+        mask = button_to_button_mask(button, target_state.shape[0])
         button_masks.append(mask)
     button_numbers = set(range(len(buttons)))
     # Lets try with semi-brute force including branch-and-bound
@@ -115,10 +121,10 @@ def solve_part_one(lines: list[str]) -> int:
 
 
 def solve_part_two(lines: list[str]) -> int:
-    states, button_sequences, _ = read_machines(lines)
+    _, button_sequences, target_joults = read_machines(lines)
     results = []
-    for state, buttons in zip(states, button_sequences):
-        n = solve_machine_part_one(state, buttons)
+    for joults, buttons in zip(target_joults, button_sequences):
+        n = solve_machine_part_two(target_state=joults, buttons=buttons)
         results.append(n)
     
     return sum(results)
