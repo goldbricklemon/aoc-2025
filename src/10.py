@@ -64,10 +64,7 @@ def read_machines(lines: list[str]) -> tuple[list[np.ndarray], list[list[tuple]]
 
 def solve_machine_part_one(target_state: np.ndarray, buttons: list[tuple[int]]) -> int:
     # Generate bit-masks from buttons
-    button_masks = []
-    for button in buttons:
-        mask = button_to_button_mask(button, target_state.shape[0])
-        button_masks.append(mask)
+    button_masks = [button_to_button_mask(button, target_state.shape[0]) for button in buttons]
     button_numbers = set(range(len(buttons)))
     # Lets try with semi-brute force including branch-and-bound
     # Include loop detection
